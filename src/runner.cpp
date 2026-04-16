@@ -105,7 +105,7 @@ int run(const RunConfig& cfg) {
              static_cast<int>(getpid()));
 
     // Install handlers for the signals that typically interrupt interactive use.
-    struct sigaction sa{};
+    struct sigaction sa = {};
     sa.sa_handler = signal_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;

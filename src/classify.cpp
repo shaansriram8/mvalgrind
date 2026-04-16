@@ -29,7 +29,7 @@ static bool read_magic(const std::string& path, uint8_t out[4]) {
 }
 
 FileType classify(const std::string& path) {
-    struct stat st{};
+    struct stat st = {};
     if (stat(path.c_str(), &st) != 0) return FileType::NotFound;
     if (S_ISDIR(st.st_mode)) return FileType::IsDirectory;
 
