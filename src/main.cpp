@@ -1,15 +1,14 @@
-#include "mvalgrind.hpp"
-
 #include <cstdio>
 #include <cstdlib>
 #include <variant>
+
+#include "mvalgrind.hpp"
 
 int main(int argc, char* argv[]) {
     auto result = mvalgrind::parse_args(argc, argv);
 
     if (std::holds_alternative<mvalgrind::ParseError>(result)) {
-        fprintf(stderr, "mvalgrind: %s\n",
-                std::get<mvalgrind::ParseError>(result).message.c_str());
+        fprintf(stderr, "mvalgrind: %s\n", std::get<mvalgrind::ParseError>(result).message.c_str());
         fprintf(stderr, "Run 'mvalgrind --help' for usage.\n");
         return 2;
     }
@@ -30,8 +29,7 @@ int main(int argc, char* argv[]) {
     mvalgrind::FileType ft = mvalgrind::classify(args.target);
     switch (ft) {
         case mvalgrind::FileType::NotFound:
-            fprintf(stderr, "mvalgrind: '%s': no such file or directory\n",
-                    args.target.c_str());
+            fprintf(stderr, "mvalgrind: '%s': no such file or directory\n", args.target.c_str());
             return 2;
 
         case mvalgrind::FileType::IsDirectory:
@@ -84,10 +82,10 @@ int main(int argc, char* argv[]) {
     }
 
     mvalgrind::RunConfig cfg;
-    cfg.args            = args;
-    cfg.file_type       = ft;
-    cfg.keep_container  = args.mv_keep;
-    cfg.verbose         = args.mv_verbose;
+    cfg.args = args;
+    cfg.file_type = ft;
+    cfg.keep_container = args.mv_keep;
+    cfg.verbose = args.mv_verbose;
 
     return mvalgrind::run(cfg);
 }

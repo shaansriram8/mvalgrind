@@ -1,10 +1,11 @@
-#include "mvalgrind.hpp"
+#include <sys/stat.h>
 
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <string>
-#include <sys/stat.h>
+
+#include "mvalgrind.hpp"
 
 namespace mvalgrind {
 
@@ -28,7 +29,7 @@ static bool read_magic(const std::string& path, uint8_t out[4]) {
 }
 
 FileType classify(const std::string& path) {
-    struct stat st {};
+    struct stat st{};
     if (stat(path.c_str(), &st) != 0) return FileType::NotFound;
     if (S_ISDIR(st.st_mode)) return FileType::IsDirectory;
 
@@ -49,10 +50,8 @@ FileType classify(const std::string& path) {
         return FileType::ElfBinary;
 
     // Mach-O magic values (big-endian and little-endian, 32/64-bit, fat binary)
-    uint32_t m = (static_cast<uint32_t>(magic[0]) << 24) |
-                 (static_cast<uint32_t>(magic[1]) << 16) |
-                 (static_cast<uint32_t>(magic[2]) << 8) |
-                 static_cast<uint32_t>(magic[3]);
+    uint32_t m = (static_cast<uint32_t>(magic[0]) << 24) | (static_cast<uint32_t>(magic[1]) << 16) |
+                 (static_cast<uint32_t>(magic[2]) << 8) | static_cast<uint32_t>(magic[3]);
     if (m == 0xFEEDFACEu || m == 0xFEEDFACFu || m == 0xCAFEBABEu || m == 0xCAFEBABFu ||
         m == 0xCEFAEDFEu || m == 0xCFFAEDFEu)
         return FileType::MachOBinary;

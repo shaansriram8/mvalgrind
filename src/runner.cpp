@@ -1,15 +1,16 @@
-#include "mvalgrind.hpp"
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
-#include <fcntl.h>
 #include <filesystem>
-#include <signal.h>
 #include <string>
-#include <sys/wait.h>
-#include <unistd.h>
 #include <vector>
+
+#include "mvalgrind.hpp"
 
 namespace mvalgrind {
 
@@ -97,14 +98,14 @@ int run(const RunConfig& cfg) {
     }
 
     std::string mount_dir = abs_target.parent_path().string();
-    std::string filename  = abs_target.filename().string();
+    std::string filename = abs_target.filename().string();
 
     // Set the global container name before installing signal handlers.
     snprintf(g_container_name, sizeof(g_container_name), "mvalgrind-run-%d",
              static_cast<int>(getpid()));
 
     // Install handlers for the signals that typically interrupt interactive use.
-    struct sigaction sa {};
+    struct sigaction sa{};
     sa.sa_handler = signal_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
@@ -119,11 +120,10 @@ int run(const RunConfig& cfg) {
     std::string inner_cmd;
 
     if (cfg.file_type == FileType::CSource || cfg.file_type == FileType::CppSource) {
-        const char* compiler =
-            (cfg.file_type == FileType::CSource) ? "gcc" : "g++";
+        const char* compiler = (cfg.file_type == FileType::CSource) ? "gcc" : "g++";
         std::string src_in_container = "/work/" + filename;
 
-        inner_cmd  = compiler;
+        inner_cmd = compiler;
         inner_cmd += " -g -O0 -Wall -Wextra -o /tmp/mvalgrind_prog ";
         inner_cmd += shell_quote(src_in_container);
         inner_cmd += " && valgrind";
@@ -172,7 +172,7 @@ int run(const RunConfig& cfg) {
 
     // Mirror TTY state so Valgrind's colour output and interactive programs
     // behave the same as they would natively.
-    if (isatty(STDIN_FILENO))  docker_argv.emplace_back("-i");
+    if (isatty(STDIN_FILENO)) docker_argv.emplace_back("-i");
     if (isatty(STDOUT_FILENO)) docker_argv.emplace_back("-t");
 
     docker_argv.emplace_back(IMAGE_NAME);
@@ -215,7 +215,7 @@ int run(const RunConfig& cfg) {
         }
     }
 
-    if (WIFEXITED(status))   return WEXITSTATUS(status);
+    if (WIFEXITED(status)) return WEXITSTATUS(status);
     if (WIFSIGNALED(status)) return 128 + WTERMSIG(status);
     return 2;
 }

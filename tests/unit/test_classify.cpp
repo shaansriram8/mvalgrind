@@ -1,9 +1,11 @@
+#include <fcntl.h>
+#include <unistd.h>
+
 #include <catch2/catch_test_macros.hpp>
 #include <cstdint>
 #include <cstring>
-#include <fcntl.h>
 #include <string>
-#include <unistd.h>
+
 #include "mvalgrind.hpp"
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -11,7 +13,7 @@
 // Create a regular temp file with a given extension and optional content.
 // Returns the path; the caller owns deletion via unlink().
 static std::string make_temp(const std::string& suffix, const uint8_t* data = nullptr,
-                              size_t len = 0) {
+                             size_t len = 0) {
     // mkstemps needs the X's immediately before the suffix.
     std::string tmpl = "/tmp/mvalgrind_test_XXXXXX" + suffix;
     int fd = mkstemps(tmpl.data(), static_cast<int>(suffix.size()));

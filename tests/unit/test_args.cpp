@@ -1,7 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
+#include <string>
 #include <variant>
 #include <vector>
-#include <string>
+
 #include "mvalgrind.hpp"
 
 // Helper: build a null-terminated argv from a list of strings and call parse_args.
@@ -42,8 +43,7 @@ TEST_CASE("valgrind flag before target", "[args]") {
 }
 
 TEST_CASE("multiple valgrind flags", "[args]") {
-    auto a = must_parse(
-        {"mvalgrind", "--leak-check=full", "--track-origins=yes", "-v", "./prog"});
+    auto a = must_parse({"mvalgrind", "--leak-check=full", "--track-origins=yes", "-v", "./prog"});
     REQUIRE(a.valgrind_flags.size() == 3);
     CHECK(a.valgrind_flags[0] == "--leak-check=full");
     CHECK(a.valgrind_flags[1] == "--track-origins=yes");
@@ -62,8 +62,7 @@ TEST_CASE("program args after target", "[args]") {
 }
 
 TEST_CASE("flags + target + program args", "[args]") {
-    auto a = must_parse(
-        {"mvalgrind", "--leak-check=full", "./prog", "foo", "--bar"});
+    auto a = must_parse({"mvalgrind", "--leak-check=full", "./prog", "foo", "--bar"});
     REQUIRE(a.valgrind_flags.size() == 1);
     CHECK(a.target == "./prog");
     REQUIRE(a.program_args.size() == 2);
@@ -136,9 +135,8 @@ TEST_CASE("long version flag", "[args]") {
 // ── Flag ordering and mixing ──────────────────────────────────────────────────
 
 TEST_CASE("valgrind flag order is preserved", "[args]") {
-    auto a = must_parse(
-        {"mvalgrind", "--show-leak-kinds=all", "--leak-check=full", "--track-origins=yes",
-         "./prog"});
+    auto a = must_parse({"mvalgrind", "--show-leak-kinds=all", "--leak-check=full",
+                         "--track-origins=yes", "./prog"});
     REQUIRE(a.valgrind_flags.size() == 3);
     CHECK(a.valgrind_flags[0] == "--show-leak-kinds=all");
     CHECK(a.valgrind_flags[1] == "--leak-check=full");
@@ -153,8 +151,7 @@ TEST_CASE("single-dash short flags pass through to valgrind", "[args]") {
 }
 
 TEST_CASE("mv flags do not appear in valgrind_flags", "[args]") {
-    auto a = must_parse(
-        {"mvalgrind", "--mv-verbose", "--leak-check=full", "--mv-keep", "./prog"});
+    auto a = must_parse({"mvalgrind", "--mv-verbose", "--leak-check=full", "--mv-keep", "./prog"});
     REQUIRE(a.valgrind_flags.size() == 1);
     CHECK(a.valgrind_flags[0] == "--leak-check=full");
     CHECK(a.mv_keep);
@@ -163,8 +160,7 @@ TEST_CASE("mv flags do not appear in valgrind_flags", "[args]") {
 
 TEST_CASE("full kitchen-sink parse", "[args]") {
     auto a = must_parse({"mvalgrind", "--mv-keep", "--mv-verbose", "--leak-check=full",
-                         "--track-origins=yes", "-v", "./my_prog.c", "arg1", "--prog-opt",
-                         "arg2"});
+                         "--track-origins=yes", "-v", "./my_prog.c", "arg1", "--prog-opt", "arg2"});
     CHECK(a.mv_keep);
     CHECK(a.mv_verbose);
     REQUIRE(a.valgrind_flags.size() == 3);
@@ -208,8 +204,7 @@ TEST_CASE("version flag short-circuits remaining args", "[args]") {
 // ── double-dash edge cases ────────────────────────────────────────────────────
 
 TEST_CASE("double-dash allows program args that start with dashes", "[args]") {
-    auto a = must_parse(
-        {"mvalgrind", "--", "./prog", "--alpha", "-b", "--gamma=3"});
+    auto a = must_parse({"mvalgrind", "--", "./prog", "--alpha", "-b", "--gamma=3"});
     CHECK(a.valgrind_flags.empty());
     CHECK(a.target == "./prog");
     REQUIRE(a.program_args.size() == 3);

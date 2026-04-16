@@ -13,7 +13,9 @@ namespace mvalgrind {
 #define MVALGRIND_VERSION "0.1.0"
 #endif
 
-inline std::string version_string() { return "mvalgrind " MVALGRIND_VERSION; }
+inline std::string version_string() {
+    return "mvalgrind " MVALGRIND_VERSION;
+}
 std::string help_string();
 
 // ── args ──────────────────────────────────────────────────────────────────────
@@ -22,11 +24,11 @@ struct Args {
     std::vector<std::string> valgrind_flags;
     std::string target;
     std::vector<std::string> program_args;
-    bool mv_keep          = false;
-    bool mv_verbose       = false;
+    bool mv_keep = false;
+    bool mv_verbose = false;
     bool mv_rebuild_image = false;
-    bool help             = false;
-    bool version          = false;
+    bool help = false;
+    bool version = false;
 };
 
 struct ParseError {
@@ -63,10 +65,10 @@ void remove_image(bool verbose);
 // ── runner ────────────────────────────────────────────────────────────────────
 
 struct RunConfig {
-    Args      args;
-    FileType  file_type;
-    bool      keep_container = false;
-    bool      verbose        = false;
+    Args args;
+    FileType file_type;
+    bool keep_container = false;
+    bool verbose = false;
 };
 
 // Forks docker run, wires signals, waits for completion.

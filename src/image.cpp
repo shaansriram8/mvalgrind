@@ -1,10 +1,11 @@
-#include "mvalgrind.hpp"
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <sys/wait.h>
-#include <unistd.h>
+
+#include "mvalgrind.hpp"
 
 namespace mvalgrind {
 
@@ -33,8 +34,7 @@ void remove_image(bool verbose) {
 bool ensure_image(bool verbose) {
     // Check whether the image already exists.
     char check_cmd[256];
-    snprintf(check_cmd, sizeof(check_cmd), "docker image inspect %s > /dev/null 2>&1",
-             IMAGE_NAME);
+    snprintf(check_cmd, sizeof(check_cmd), "docker image inspect %s > /dev/null 2>&1", IMAGE_NAME);
     int rc = std::system(check_cmd);
     if (rc == 0) {
         if (verbose) {
