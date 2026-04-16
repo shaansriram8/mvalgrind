@@ -1,6 +1,6 @@
 # mvalgrind
 
-Run Valgrind on macOS — no Linux machine required.
+Run Valgrind on Apple Silicon Macs — no Linux machine required.
 
 <!-- TODO: demo.gif -->
 
@@ -25,7 +25,7 @@ terminal the output is identical to what you'd see on a Linux machine.
 **Homebrew (recommended)**
 
 ```bash
-brew tap shaansriram/mvalgrind
+brew tap shaansriram8/mvalgrind
 brew install mvalgrind
 ```
 
@@ -40,7 +40,7 @@ starts in a few seconds.
 ### Build from source
 
 ```bash
-git clone https://github.com/shaansriram/mvalgrind.git
+git clone https://github.com/shaansriram8/mvalgrind.git
 cd mvalgrind
 cmake -B build -S .
 cmake --build build
@@ -114,6 +114,7 @@ Your terminal ◄──  stdio inherited (no pipes) ◄───┘
 
 ## Limitations
 
+- **Apple Silicon only.** Pre-built binaries are provided for arm64 (M1/M2/M3/M4). Intel Mac users must [build from source](#build-from-source).
 - **Mac binaries don't work.** Mach-O executables (anything compiled on your Mac) cannot
   run inside a Linux container. Point `mvalgrind` at the source file and it will compile
   a Linux binary for you automatically.
