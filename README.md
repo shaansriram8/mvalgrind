@@ -147,7 +147,19 @@ clang-format --dry-run --Werror src/*.cpp src/*.hpp
 ```
 
 Coding style: Google C++ style, 4-space indent, 100-column lines. See `.clang-format`.
-All pull requests must pass `ctest` and the clang-format lint check.
+
+### Branch protection
+
+`main` is a protected branch. All contributions must come in via a pull request — direct
+pushes are blocked. Before a PR can be merged:
+
+- **CI must pass** — both `Build & Test (ubuntu-latest)` and `Build & Test (macos-latest)`
+  status checks are required.
+- **Linear history** — merge commits are disabled; rebase or squash before merging.
+- **No force-pushes** — the branch history is immutable after merge.
+
+In practice: open a PR, make sure `ctest` and the clang-format lint step are green on both
+platforms, and the merge button will unlock.
 
 ---
 
