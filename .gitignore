@@ -1,0 +1,12 @@
+build/
+build-release/
+*.tar.gz
+*.sha256
+.DS_Store
+*.o
+*.a
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+_deps/

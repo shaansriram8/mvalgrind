@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  # ── Build release binaries ─────────────────────────────────────────────────
+  build:
+    name: Build (${{ matrix.arch }})
+    strategy:
+      matrix:
+        include:
+          - os: macos-14   # Apple Silicon
+            arch: arm64
+          - os: macos-13   # Intel
+            arch: x86_64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Configure (Release)
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --parallel $(sysctl -n hw.logicalcpu)
+
+      - name: Strip & package
+        run: |
+          strip build/mvalgrind
+          VERSION="${GITHUB_REF_NAME#v}"
+          TARBALL="mvalgrind-${VERSION}-${{ matrix.arch }}-apple-darwin.tar.gz"
+          tar -czf "$TARBALL" -C build mvalgrind
+          # Compute SHA256 (macOS uses shasum, Linux uses sha256sum)
+          shasum -a 256 "$TARBALL" > "$TARBALL.sha256"
+          echo "TARBALL=$TARBALL" >> "$GITHUB_ENV"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+        with:
+          name: release-${{ matrix.arch }}
+          path: |
+            *.tar.gz
+            *.sha256
+
+  # ── Create GitHub Release ──────────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4
+        with:
+          path: artifacts
+
+      - name: Flatten artifact directories
+        run: |
+          mkdir -p release-files
+          find artifacts -type f \( -name "*.tar.gz" -o -name "*.sha256" \) \
+            -exec cp {} release-files/ \;
+
+      - name: Create release
+        uses: softprops/action-gh-release@26994186c0ac3ef5cae75ac16aa32e8153525f77  # v1
+        with:
+          files: release-files/*
+          generate_release_notes: true
+          body: |
+            ## Install
+
+            ```bash
+            brew tap shaansriram/mvalgrind
+            brew install mvalgrind
+            ```
+
+            Or download the binary for your architecture below and put it on your `$PATH`.

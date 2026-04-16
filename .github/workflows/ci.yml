@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
+
+      # clang-format is pre-installed on Ubuntu runners; on macOS install via brew.
+      - name: Install clang-format (macOS)
+        if: runner.os == 'macOS'
+        run: brew install clang-format
+
+      - name: Configure
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc 2>/dev/null || sysctl -n hw.logicalcpu)
+
+      - name: Unit tests
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Lint (clang-format)
+        run: |
+          clang-format --dry-run --Werror \
+            src/main.cpp src/args.cpp src/classify.cpp \
+            src/image.cpp src/runner.cpp src/mvalgrind.hpp \
+            tests/unit/test_args.cpp tests/unit/test_classify.cpp
+
+      - name: Dockerfile sync check
+        run: |
+          python3 - <<'PY'
+          import re, sys
+          content = open("src/image.cpp").read()
+          m = re.search(r'R"DOCKERFILE\((.*?)\)DOCKERFILE"', content, re.DOTALL)
+          if not m:
+              print("ERROR: DOCKERFILE_CONTENT string not found in src/image.cpp")
+              sys.exit(1)
+          embedded = m.group(1)
+          actual = open("docker/Dockerfile").read()
+          if embedded != actual:
+              import difflib
+              diff = "".join(difflib.unified_diff(
+                  embedded.splitlines(keepends=True),
+                  actual.splitlines(keepends=True),
+                  fromfile="embedded (src/image.cpp)",
+                  tofile="docker/Dockerfile",
+              ))
+              print("ERROR: embedded Dockerfile is out of sync with docker/Dockerfile")
+              print(diff)
+              sys.exit(1)
+          print("OK: Dockerfile in sync")
+          PY
+
+      # Integration tests run only on Ubuntu where Docker is available in GH Actions.
+      - name: Integration tests
+        if: runner.os == 'Linux'
+        run: |
+          DOCKER_AVAILABLE=1 MVALGRIND=./build/mvalgrind \
+            bash tests/integration/run_integration.sh
