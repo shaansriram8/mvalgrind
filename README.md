@@ -2,8 +2,6 @@
 
 Run Valgrind on Apple Silicon Macs — no Linux machine required.
 
-<!-- TODO: demo.gif -->
-
 ---
 
 ## Why
