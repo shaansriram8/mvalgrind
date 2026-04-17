@@ -1,4 +1,4 @@
-# mvalgrind
+# macgrind
 
 Run Valgrind on Apple Silicon Macs — no Linux machine required.
 
@@ -11,7 +11,7 @@ painful workarounds: `-fsanitize=address` (different error messages, different s
 or SSH into a Linux server (needs a network, needs an account, adds friction at exactly
 the wrong moment).
 
-`mvalgrind` is a single binary that transparently runs the real Valgrind inside a local
+`macgrind` is a single binary that transparently runs the real Valgrind inside a local
 Docker container. The directory containing your source file is bind-mounted read-only at
 `/work` so sibling headers and data files are automatically available. From your
 terminal the output is identical to what you'd see on a Linux machine.
@@ -23,27 +23,27 @@ terminal the output is identical to what you'd see on a Linux machine.
 **Homebrew (recommended)**
 
 ```bash
-brew tap shaansriram8/mvalgrind
-brew install mvalgrind
+brew tap shaansriram8/macgrind
+brew install macgrind
 ```
 
 > Docker Desktop must be installed and running. The `docker` package that Homebrew
 > installs provides only the CLI client; the daemon comes with
 > [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
-On the first invocation `mvalgrind` builds a small Ubuntu 22.04 image with Valgrind,
+On the first invocation `macgrind` builds a small Ubuntu 22.04 image with Valgrind,
 GCC, and G++ (~200 MB download). Every subsequent run reuses the cached image and
 starts in a few seconds.
 
 ### Build from source
 
 ```bash
-git clone https://github.com/shaansriram8/mvalgrind.git
-cd mvalgrind
+git clone https://github.com/shaansriram8/macgrind.git
+cd macgrind
 cmake -B build -S .
 cmake --build build
 # Optionally copy to a directory on your PATH:
-sudo cp build/mvalgrind /usr/local/bin/
+sudo cp build/macgrind /usr/local/bin/
 ```
 
 Requirements: CMake ≥ 3.16, a C++17 compiler, Docker Desktop.
@@ -54,25 +54,25 @@ Requirements: CMake ≥ 3.16, a C++17 compiler, Docker Desktop.
 
 ```bash
 # Check for memory leaks in a C source file (auto-compiled inside the container)
-mvalgrind --leak-check=full ./leak.c
+macgrind --leak-check=full ./leak.c
 
 # Detect uninitialised reads in a C++ file
-mvalgrind --track-origins=yes ./uninit.cpp
+macgrind --track-origins=yes ./uninit.cpp
 
 # Run against a prebuilt Linux ELF binary
-mvalgrind --leak-check=full ./my_linux_binary arg1 arg2
+macgrind --leak-check=full ./my_linux_binary arg1 arg2
 
 # Pass arguments to your program (anything after the target goes to the program)
-mvalgrind --leak-check=full ./my_prog -n 100 input.txt
+macgrind --leak-check=full ./my_prog -n 100 input.txt
 
 # Show the docker command that will be run (debugging aid)
-mvalgrind --mv-verbose --leak-check=full ./leak.c
+macgrind --mv-verbose --leak-check=full ./leak.c
 ```
 
 All Valgrind flags (`--tool=`, `--show-leak-kinds=`, `--suppressions=`, etc.) are
 forwarded unchanged.
 
-`mvalgrind`-specific flags (will never collide with Valgrind):
+`macgrind`-specific flags (will never collide with Valgrind):
 
 | Flag                  | Effect                                                  |
 | --------------------- | ------------------------------------------------------- |
@@ -87,9 +87,9 @@ forwarded unchanged.
 ## How it works
 
 ```
-You on Mac         mvalgrind (C++ binary)         Docker container
+You on Mac         macgrind (C++ binary)         Docker container
 ──────────         ──────────────────────         ────────────────
-mvalgrind          classifies target:             Ubuntu 22.04
+macgrind          classifies target:             Ubuntu 22.04
 --leak-check=full  .c/.cpp → compile then run     + valgrind
 ./leak.c      ──►  ELF     → run directly    ──►  + gcc / g++
                                                    + /work (your dir, :ro)
@@ -98,7 +98,7 @@ Your terminal ◄──  stdio inherited (no pipes) ◄───┘
 ```
 
 1. **Classify** — extension (`.c`, `.cpp`, …) or ELF magic bytes.
-2. **Image** — on first run, build `mvalgrind-ubuntu:latest` from an embedded
+2. **Image** — on first run, build `macgrind-ubuntu:latest` from an embedded
    Dockerfile; subsequent runs skip this step.
 3. **Mount** — the directory containing the target is bind-mounted read-only at `/work`.
 4. **Run** — `docker run` is fork/exec'd; your terminal inherits its stdio so Valgrind's
@@ -114,12 +114,12 @@ Your terminal ◄──  stdio inherited (no pipes) ◄───┘
 
 - **Apple Silicon only.** Pre-built binaries are provided for arm64 (M1/M2/M3/M4). Intel Mac users must [build from source](#build-from-source).
 - **Mac binaries don't work.** Mach-O executables (anything compiled on your Mac) cannot
-  run inside a Linux container. Point `mvalgrind` at the source file and it will compile
+  run inside a Linux container. Point `macgrind` at the source file and it will compile
   a Linux binary for you automatically.
 - **First run is slow.** Building the Docker image takes 1–2 minutes depending on your
   internet connection. Every subsequent run is fast.
 - **Requires Docker Desktop to be running.** If the Docker daemon isn't reachable,
-  `mvalgrind` exits immediately with a helpful error.
+  `macgrind` exits immediately with a helpful error.
 - **Source files are recompiled on every run.** There is no caching of compiled binaries
   between invocations. This keeps correctness simple — you always run against your latest
   source — but means there is a small compile overhead each time.
@@ -138,7 +138,7 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 
 # Run integration tests (requires Docker)
-DOCKER_AVAILABLE=1 MVALGRIND=./build/mvalgrind \
+DOCKER_AVAILABLE=1 MACGRIND=./build/macgrind \
   bash tests/integration/run_integration.sh
 
 # Check formatting

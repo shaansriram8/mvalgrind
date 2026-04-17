@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Integration tests for mvalgrind.  Requires Docker and a built binary.
+# Integration tests for macgrind.  Requires Docker and a built binary.
 # Set DOCKER_AVAILABLE=1 to opt in; tests are skipped otherwise.
 set -euo pipefail
 
@@ -10,12 +10,12 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-MVALGRIND="${MVALGRIND:-$REPO_ROOT/build/mvalgrind}"
+MACGRIND="${MVALGRIND:-$REPO_ROOT/build/macgrind}"
 FIXTURES="$SCRIPT_DIR/fixtures"
 EXPECTED="$SCRIPT_DIR/expected"
 
-if [[ ! -x "$MVALGRIND" ]]; then
-    echo "ERROR: mvalgrind binary not found at $MVALGRIND"
+if [[ ! -x "$MACGRIND" ]]; then
+    echo "ERROR: macgrind binary not found at $MACGRIND"
     echo "  Build with: cmake -B build -S . && cmake --build build"
     exit 1
 fi
@@ -43,31 +43,31 @@ run_test() {
 }
 
 echo ""
-echo "=== mvalgrind integration tests ==="
+echo "=== macgrind integration tests ==="
 echo ""
 
 # ── Source file compilation + Valgrind ───────────────────────────────────────
 
 run_test "leak.c: detects 'definitely lost'" \
     "definitely lost" \
-    "$MVALGRIND" --leak-check=full "$FIXTURES/leak.c"
+    "$MACGRIND" --leak-check=full "$FIXTURES/leak.c"
 
 run_test "clean.c: reports 'no leaks are possible'" \
     "no leaks are possible" \
-    "$MVALGRIND" --leak-check=full "$FIXTURES/clean.c"
+    "$MACGRIND" --leak-check=full "$FIXTURES/clean.c"
 
 run_test "uninit.cpp: detects uninitialised read" \
     "Conditional jump or move depends on uninitialised value" \
-    "$MVALGRIND" --track-origins=yes "$FIXTURES/uninit.cpp"
+    "$MACGRIND" --track-origins=yes "$FIXTURES/uninit.cpp"
 
 # ── SIGINT cleanup ────────────────────────────────────────────────────────────
 
 printf "  %-55s" "SIGINT: container removed within 3 seconds ..."
 
 # Start a long-running job in the background.
-"$MVALGRIND" "$FIXTURES/sleep_loop.c" &
+"$MACGRIND" "$FIXTURES/sleep_loop.c" &
 MV_PID=$!
-CONTAINER="mvalgrind-run-${MV_PID}"
+CONTAINER="macgrind-run-${MV_PID}"
 
 # Poll until the container actually appears — avoids a fixed sleep that would
 # be either too short on a slow daemon or wastefully long on a fast one.

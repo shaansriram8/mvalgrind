@@ -1,10 +1,10 @@
 class Mvalgrind < Formula
   desc "Valgrind for macOS — runs Valgrind in a local Docker container"
-  homepage "https://github.com/shaansriram8/mvalgrind"
+  homepage "https://github.com/shaansriram8/macgrind"
   license "MIT"
   version "0.1.0"
 
-  url "https://github.com/shaansriram8/mvalgrind/releases/download/v0.1.0/mvalgrind-0.1.0-arm64-apple-darwin.tar.gz"
+  url "https://github.com/shaansriram8/macgrind/releases/download/v0.1.0/macgrind-0.1.0-arm64-apple-darwin.tar.gz"
   sha256 "143fbdc2d532774538a8aad04701a5d943bd6710554c6ada7c4d48cbfc7acf11"
 
   # 'docker' installs the Docker CLI.  Docker Desktop (a cask) provides the
@@ -12,12 +12,12 @@ class Mvalgrind < Formula
   depends_on "docker"
 
   def install
-    bin.install "mvalgrind"
+    bin.install "macgrind"
   end
 
   def caveats
     <<~EOS
-      mvalgrind launches containers using the local Docker daemon.
+      macgrind launches containers using the local Docker daemon.
       Make sure Docker Desktop is installed and running before use:
 
         https://www.docker.com/products/docker-desktop/
@@ -25,14 +25,14 @@ class Mvalgrind < Formula
       The `docker` formula installed by Homebrew provides only the CLI client.
       Docker Desktop provides the daemon that actually runs containers.
 
-      On the first invocation, mvalgrind will build a small Ubuntu image
+      On the first invocation, macgrind will build a small Ubuntu image
       (~200 MB download).  Subsequent runs reuse the cached image and start
       in seconds.
     EOS
   end
 
   test do
-    output = shell_output("#{bin}/mvalgrind --version")
-    assert_match "mvalgrind", output
+    output = shell_output("#{bin}/macgrind --version")
+    assert_match "macgrind", output
   end
 end

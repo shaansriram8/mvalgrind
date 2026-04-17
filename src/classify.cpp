@@ -5,9 +5,9 @@
 #include <cstring>
 #include <string>
 
-#include "mvalgrind.hpp"
+#include "macgrind.hpp"
 
-namespace mvalgrind {
+namespace macgrind {
 
 // Returns the file extension (including the dot), preserving case.
 static std::string file_extension(const std::string& path) {
@@ -59,4 +59,4 @@ FileType classify(const std::string& path) {
     return FileType::Unknown;
 }
 
-}  // namespace mvalgrind
+}  // namespace macgrind

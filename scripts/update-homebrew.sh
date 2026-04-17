@@ -15,7 +15,7 @@ VERSION="$1"
 ARM64_SHA="$2"
 X86_SHA="$3"
 
-FORMULA="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/homebrew/mvalgrind.rb"
+FORMULA="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/homebrew/macgrind.rb"
 
 if [[ ! -f "$FORMULA" ]]; then
     echo "ERROR: formula not found at $FORMULA" >&2
@@ -27,10 +27,10 @@ sed -i.bak "s/version \"[^\"]*\"/version \"${VERSION}\"/" "$FORMULA"
 
 # Bump URLs (arm64 and x86_64)
 sed -i.bak \
-    "s|releases/download/v[^/]*/mvalgrind-[^-]*-arm64|releases/download/v${VERSION}/mvalgrind-${VERSION}-arm64|g" \
+    "s|releases/download/v[^/]*/macgrind-[^-]*-arm64|releases/download/v${VERSION}/macgrind-${VERSION}-arm64|g" \
     "$FORMULA"
 sed -i.bak \
-    "s|releases/download/v[^/]*/mvalgrind-[^-]*-x86_64|releases/download/v${VERSION}/mvalgrind-${VERSION}-x86_64|g" \
+    "s|releases/download/v[^/]*/macgrind-[^-]*-x86_64|releases/download/v${VERSION}/macgrind-${VERSION}-x86_64|g" \
     "$FORMULA"
 
 # Bump SHA256 placeholders / previous values.
