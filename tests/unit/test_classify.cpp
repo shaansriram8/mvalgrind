@@ -143,8 +143,7 @@ TEST_CASE("file too short for magic", "[classify]") {
 }
 
 TEST_CASE("nonexistent file → NotFound", "[classify]") {
-    CHECK(macgrind::classify("/tmp/macgrind_does_not_exist_xyz") ==
-          macgrind::FileType::NotFound);
+    CHECK(macgrind::classify("/tmp/macgrind_does_not_exist_xyz") == macgrind::FileType::NotFound);
 }
 
 TEST_CASE("directory → IsDirectory", "[classify]") {
