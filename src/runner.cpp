@@ -10,9 +10,9 @@
 #include <string>
 #include <vector>
 
-#include "mvalgrind.hpp"
+#include "macgrind.hpp"
 
-namespace mvalgrind {
+namespace macgrind {
 
 namespace fs = std::filesystem;
 
@@ -54,7 +54,7 @@ static void signal_handler(int sig) {
     }
     g_signal_count = 1;
 
-    const char msg[] = "\nmvalgrind: caught signal, removing container...\n";
+    const char msg[] = "\nmacgrind: caught signal, removing container...\n";
     write(STDERR_FILENO, msg, sizeof(msg) - 1);
 
     kill_container();
@@ -92,7 +92,7 @@ int run(const RunConfig& cfg) {
     std::error_code ec;
     fs::path abs_target = fs::absolute(fs::path(args.target), ec);
     if (ec) {
-        fprintf(stderr, "mvalgrind: cannot resolve path '%s': %s\n", args.target.c_str(),
+        fprintf(stderr, "macgrind: cannot resolve path '%s': %s\n", args.target.c_str(),
                 ec.message().c_str());
         return 2;
     }
@@ -101,7 +101,7 @@ int run(const RunConfig& cfg) {
     std::string filename = abs_target.filename().string();
 
     // Set the global container name before installing signal handlers.
-    snprintf(g_container_name, sizeof(g_container_name), "mvalgrind-run-%d",
+    snprintf(g_container_name, sizeof(g_container_name), "macgrind-run-%d",
              static_cast<int>(getpid()));
 
     // Install handlers for the signals that typically interrupt interactive use.
@@ -124,7 +124,7 @@ int run(const RunConfig& cfg) {
         std::string src_in_container = "/work/" + filename;
 
         inner_cmd = compiler;
-        inner_cmd += " -g -O0 -Wall -Wextra -o /tmp/mvalgrind_prog ";
+        inner_cmd += " -g -O0 -Wall -Wextra -o /tmp/macgrind_prog ";
         inner_cmd += shell_quote(src_in_container);
         inner_cmd += " && valgrind";
 
@@ -132,7 +132,7 @@ int run(const RunConfig& cfg) {
             inner_cmd += ' ';
             inner_cmd += shell_quote(flag);
         }
-        inner_cmd += " /tmp/mvalgrind_prog";
+        inner_cmd += " /tmp/macgrind_prog";
         for (const auto& parg : args.program_args) {
             inner_cmd += ' ';
             inner_cmd += shell_quote(parg);
@@ -181,7 +181,7 @@ int run(const RunConfig& cfg) {
     docker_argv.emplace_back(inner_cmd);
 
     if (cfg.verbose) {
-        fprintf(stderr, "mvalgrind: running:");
+        fprintf(stderr, "macgrind: running:");
         for (const auto& s : docker_argv) fprintf(stderr, " %s", s.c_str());
         fprintf(stderr, "\n");
     }
@@ -196,12 +196,12 @@ int run(const RunConfig& cfg) {
 
     pid_t child = fork();
     if (child < 0) {
-        perror("mvalgrind: fork");
+        perror("macgrind: fork");
         return 2;
     }
     if (child == 0) {
         execvp("docker", execvp_argv.data());
-        perror("mvalgrind: exec docker");
+        perror("macgrind: exec docker");
         _exit(2);
     }
 
@@ -210,7 +210,7 @@ int run(const RunConfig& cfg) {
     int status = 0;
     while (waitpid(child, &status, 0) < 0) {
         if (errno != EINTR) {
-            perror("mvalgrind: waitpid");
+            perror("macgrind: waitpid");
             return 2;
         }
     }
@@ -220,4 +220,4 @@ int run(const RunConfig& cfg) {
     return 2;
 }
 
-}  // namespace mvalgrind
+}  // namespace macgrind

@@ -32,7 +32,7 @@ of what bytes happen to be in it.  This matches how every build system works.
 
 ## Docker image name
 
-**Image is named `mvalgrind-ubuntu:latest`.**
+**Image is named `macgrind-ubuntu:latest`.**
 Rationale: Descriptive enough that students can find it in `docker images` without
 confusion.  Unlikely to collide with images they already have.
 
@@ -93,9 +93,9 @@ different account or org.
 
 ## Exit codes
 
-**mvalgrind orchestration errors exit with code 2.**
+**macgrind orchestration errors exit with code 2.**
 Rationale: Valgrind uses 0 for success and 1 for "errors detected"; reserving 2 for
-mvalgrind's own errors avoids ambiguity.  `128 + signal_number` is used for signal
+macgrind's own errors avoids ambiguity.  `128 + signal_number` is used for signal
 termination to match shell conventions.
 
 ---

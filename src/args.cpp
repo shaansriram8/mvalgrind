@@ -3,14 +3,14 @@
 #include <variant>
 #include <vector>
 
-#include "mvalgrind.hpp"
+#include "macgrind.hpp"
 
-namespace mvalgrind {
+namespace macgrind {
 
 std::string help_string() {
-    return R"(Usage: mvalgrind [valgrind-flags...] <target> [program-args...]
+    return R"(Usage: macgrind [valgrind-flags...] <target> [program-args...]
 
-mvalgrind runs Valgrind inside a local Docker container so you get native
+macgrind runs Valgrind inside a local Docker container so you get native
 Valgrind output on macOS without needing a Linux machine.
 
   <target>          A C/C++ source file (.c, .cpp, .cc, .cxx, .c++) or a
@@ -19,21 +19,21 @@ Valgrind output on macOS without needing a Linux machine.
 
   --                End flag scanning; next argument is the target.
 
-mvalgrind-specific flags (will not be passed to Valgrind):
+macgrind-specific flags (will not be passed to Valgrind):
   --mv-keep           Do not --rm the container on exit (debugging aid).
   --mv-verbose        Print the docker command before running it.
   --mv-rebuild-image  Delete and rebuild the cached Docker image from scratch.
-                      Use this after upgrading mvalgrind to pick up image changes.
+                      Use this after upgrading macgrind to pick up image changes.
   -h, --help          Show this help and exit.
   -V, --version       Show version and exit.
 
 All other flags are forwarded to Valgrind unchanged.
 
 Examples:
-  mvalgrind --leak-check=full ./leak.c
-  mvalgrind --track-origins=yes ./uninit.cpp
-  mvalgrind --leak-check=full ./my_linux_binary arg1 arg2
-  mvalgrind --mv-verbose --leak-check=full ./leak.c
+  macgrind --leak-check=full ./leak.c
+  macgrind --track-origins=yes ./uninit.cpp
+  macgrind --leak-check=full ./my_linux_binary arg1 arg2
+  macgrind --mv-verbose --leak-check=full ./leak.c
 )";
 }
 
@@ -90,8 +90,8 @@ std::variant<Args, ParseError> parse_args(int argc, char* argv[]) {
             continue;
         }
         if (tok.rfind("--mv-", 0) == 0) {
-            return ParseError{"unknown mvalgrind flag: " + tok +
-                              "\n  (all --mv-* flags are reserved for mvalgrind itself)"};
+            return ParseError{"unknown macgrind flag: " + tok +
+                              "\n  (all --mv-* flags are reserved for macgrind itself)"};
         }
 
         // Any other flag → Valgrind
@@ -112,4 +112,4 @@ std::variant<Args, ParseError> parse_args(int argc, char* argv[]) {
     return args;
 }
 
-}  // namespace mvalgrind
+}  // namespace macgrind

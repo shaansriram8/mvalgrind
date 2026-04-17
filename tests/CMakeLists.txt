@@ -18,7 +18,7 @@ add_executable(test_unit
 target_include_directories(test_unit PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(test_unit PRIVATE Catch2::Catch2WithMain)
 target_compile_definitions(test_unit PRIVATE
-    MVALGRIND_VERSION="${CMAKE_PROJECT_VERSION}"
+    MACGRIND_VERSION="${CMAKE_PROJECT_VERSION}"
 )
 
 include(CTest)

@@ -5,9 +5,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "mvalgrind.hpp"
+#include "macgrind.hpp"
 
-namespace mvalgrind {
+namespace macgrind {
 
 // Must be kept byte-for-byte identical to docker/Dockerfile.
 // CI verifies this with scripts/check-dockerfile-sync.py.
@@ -24,7 +24,7 @@ CMD ["/bin/bash"]
 
 void remove_image(bool verbose) {
     if (verbose) {
-        fprintf(stderr, "mvalgrind: removing cached image '%s'...\n", IMAGE_NAME);
+        fprintf(stderr, "macgrind: removing cached image '%s'...\n", IMAGE_NAME);
     }
     char cmd[256];
     snprintf(cmd, sizeof(cmd), "docker rmi -f %s > /dev/null 2>&1", IMAGE_NAME);
@@ -38,26 +38,26 @@ bool ensure_image(bool verbose) {
     int rc = std::system(check_cmd);
     if (rc == 0) {
         if (verbose) {
-            fprintf(stderr, "mvalgrind: image '%s' already exists\n", IMAGE_NAME);
+            fprintf(stderr, "macgrind: image '%s' already exists\n", IMAGE_NAME);
         }
         return true;
     }
 
     fprintf(stderr,
-            "mvalgrind: building Docker image '%s' on first run "
+            "macgrind: building Docker image '%s' on first run "
             "(this takes ~1–2 minutes)...\n",
             IMAGE_NAME);
 
     // Write the embedded Dockerfile to a temp file.
-    char tmpfile[] = "/tmp/mvalgrind-dockerfile-XXXXXX";
+    char tmpfile[] = "/tmp/macgrind-dockerfile-XXXXXX";
     int fd = mkstemp(tmpfile);
     if (fd < 0) {
-        perror("mvalgrind: mkstemp");
+        perror("macgrind: mkstemp");
         return false;
     }
     size_t len = strlen(DOCKERFILE_CONTENT);
     if (write(fd, DOCKERFILE_CONTENT, len) != static_cast<ssize_t>(len)) {
-        perror("mvalgrind: write Dockerfile");
+        perror("macgrind: write Dockerfile");
         close(fd);
         unlink(tmpfile);
         return false;
@@ -70,7 +70,7 @@ bool ensure_image(bool verbose) {
     snprintf(cmd, sizeof(cmd), "docker build -t %s -f %s /tmp", IMAGE_NAME, tmpfile);
 
     if (verbose) {
-        fprintf(stderr, "mvalgrind: running: %s\n", cmd);
+        fprintf(stderr, "macgrind: running: %s\n", cmd);
     }
 
     rc = std::system(cmd);
@@ -79,12 +79,12 @@ bool ensure_image(bool verbose) {
     if (rc != 0) {
         // system() returns the raw waitpid status; extract the actual exit code.
         int code = WIFEXITED(rc) ? WEXITSTATUS(rc) : rc;
-        fprintf(stderr, "mvalgrind: docker build failed (exit %d)\n", code);
+        fprintf(stderr, "macgrind: docker build failed (exit %d)\n", code);
         return false;
     }
 
-    fprintf(stderr, "mvalgrind: image built successfully.\n");
+    fprintf(stderr, "macgrind: image built successfully.\n");
     return true;
 }
 
-}  // namespace mvalgrind
+}  // namespace macgrind

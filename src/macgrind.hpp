@@ -5,7 +5,7 @@
 #include <variant>
 #include <vector>
 
-namespace mvalgrind {
+namespace macgrind {
 
 // ── version ───────────────────────────────────────────────────────────────────
 
@@ -14,7 +14,7 @@ namespace mvalgrind {
 #endif
 
 inline std::string version_string() {
-    return "mvalgrind " MVALGRIND_VERSION;
+    return "macgrind " MVALGRIND_VERSION;
 }
 std::string help_string();
 
@@ -53,7 +53,7 @@ FileType classify(const std::string& path);
 
 // ── image ─────────────────────────────────────────────────────────────────────
 
-static constexpr const char* IMAGE_NAME = "mvalgrind-ubuntu:latest";
+static constexpr const char* IMAGE_NAME = "macgrind-ubuntu:latest";
 
 // Ensures the Docker image exists, building it on first run.
 // Returns true on success, false on failure.
@@ -75,4 +75,4 @@ struct RunConfig {
 // Returns the child's exit code, or 2 on orchestration error.
 int run(const RunConfig& cfg);
 
-}  // namespace mvalgrind
+}  // namespace macgrind

@@ -31,10 +31,10 @@ jobs:
 
       - name: Strip & package
         run: |
-          strip build/mvalgrind
+          strip build/macgrind
           VERSION="${GITHUB_REF_NAME#v}"
-          TARBALL="mvalgrind-${VERSION}-${{ matrix.arch }}-apple-darwin.tar.gz"
-          tar -czf "$TARBALL" -C build mvalgrind
+          TARBALL="macgrind-${VERSION}-${{ matrix.arch }}-apple-darwin.tar.gz"
+          tar -czf "$TARBALL" -C build macgrind
           # Compute SHA256 (macOS uses shasum, Linux uses sha256sum)
           shasum -a 256 "$TARBALL" > "$TARBALL.sha256"
           echo "TARBALL=$TARBALL" >> "$GITHUB_ENV"
@@ -76,8 +76,8 @@ jobs:
             ## Install
 
             ```bash
-            brew tap shaansriram8/mvalgrind
-            brew install mvalgrind
+            brew tap shaansriram8/macgrind
+            brew install macgrind
             ```
 
             Or download the binary for your architecture below and put it on your `$PATH`.
